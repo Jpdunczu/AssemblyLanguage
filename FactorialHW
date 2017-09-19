@@ -1,0 +1,57 @@
+.data
+	message:	.asciiz	"Enter the Number: "
+	resultMessage:	.asciiz	"! = "
+	theNumber:	.word 
+.text
+	main:
+		li	$v0,4
+		la	$a0,message
+		syscall
+		li	$v0,5
+		syscall
+		
+		sw	$v0,theNumber
+		move	$a0,$v0
+		
+		jal	findFactorial
+		
+		# return here...
+		
+		lw	$t0,theNumber
+		li	$v0,1
+		move	$a0,$t0
+		syscall
+		
+		li	$v0,4
+		la	$a0,resultMessage
+		syscall
+		
+		li	$v0,1
+		mflo	$t1
+		move	$a0,$t1
+		syscall
+		
+	exit:
+		li	$v0,10
+		syscall
+		
+	findFactorial:
+		addi	$sp,$sp,-8	# push stack pointer back 8 bytes;
+		sw	$ra,0($sp)	# save the return address at the current pos in the stack;
+		sw	$s0,4($sp)	# save the number on the stack;
+		
+		li	$v0,1		# ready to compare the integer value;
+		beq	$a0,1,factorialDone	# check if the base case has been reached ( $a0 == 1 );
+		# if not...
+		move	$s0,$a0		# move the value of $a0 to $s0; to store back on line 18;
+		subi	$a0,$a0,1	# subtract one from the value in $a0
+		jal	findFactorial	# recursive call;
+				
+		mul	$v0,$s0,$v0
+		
+	factorialDone:
+		lw	$ra,0($sp)	# load return address from this entry;
+		lw	$s0,4($sp)	# load the number from this entry;
+		addi	$sp,$sp,8	# advance stack point 8 bytes;
+		jr	$ra
+		

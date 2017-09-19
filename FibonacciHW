@@ -1,0 +1,66 @@
+.data
+	firstNumber:	.asciiz	"Enter first number: "
+	secondNumber:	.asciiz	"Enter second Number: "
+	N:		.asciiz	"Number of iterations: "
+	
+.text
+	main:
+		addi	$sp,$sp,-8	# make room on stack for 2 words;
+		
+		li	$v0,4		# first message;
+		la	$a0,firstNumber	# print first message;
+		syscall
+		li	$v0,5		# get number;
+		syscall
+		
+		sw	$v0,0($sp)	# store first word at -8;
+		
+		li	$v0,4		# second message;
+		la	$a0,secondNumber# print second message;
+		syscall
+		li	$v0,5		# get second number;
+		syscall
+		
+		sw	$v0,4($sp)	# store second word at -4;
+		
+		li	$v0,4		# third message;
+		la	$a0,N		# print third message;
+		syscall
+		li	$v0,5		# get the iterations
+		syscall
+		
+		
+		add	$t1,$zero,$v0	# register for end of forLoop; putting value of N into $t1
+		move	$t2,$zero	# initialize counter at 0;
+		b	forTest
+		
+	forLoop:
+		lw	$v0,0($sp)	# get the value at -8 sp;
+		lw	$t0,4($sp)	# get the value ar -4 sp;
+		
+		add	$v0,$t0,$v0	# add the two, keep the highest value;
+		
+		sw	$v0,4($sp)	# save the new highest value;
+		sw	$t0,0($sp)	# save the old highest value;
+		
+		addi	$t2,$t2,1	# increment counter $t2++;
+		
+	forTest:
+		slt	$t3,$t2,$t1	# if $t2 < $t1...
+		bnez	$t3,forLoop	
+		
+		# if not, end of loop..
+		
+		lw	$t0,4($sp)	# get the last highest value of iteration;
+		li	$v0,1		# ready to print an integer value;
+		move	$a0,$t0		# print the value;
+		syscall
+		
+		addi	$sp,$sp,8	# restore the stack pointer!
+		
+	exit:
+	
+		li	$v0,10		# EXIT
+		syscall
+		
+	
